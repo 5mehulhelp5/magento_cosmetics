@@ -24,6 +24,8 @@ ok()   { echo -e "${GREEN}  ✓ $*${NC}"; }
 die()  { echo -e "${RED}  ✗ $*${NC}" >&2; exit 1; }
 
 [[ ! -f "$DEPLOY_PATH/auth.json" ]]  && die "auth.json not found at $DEPLOY_PATH/auth.json"
+grep -q "hyva-themes.repo.packagist.com" "$DEPLOY_PATH/auth.json" \
+  || die "auth.json missing hyva-themes.repo.packagist.com credentials — required to install the Hyvä theme package"
 [[ ! -f "$DEPLOY_PATH/shared/env.php" ]] && die "shared/env.php not found — run setup:install first"
 
 echo -e "\n${GREEN}╔══════════════════════════════════════════════╗"
@@ -42,23 +44,24 @@ mkdir -p "$NEW"
 git -C "$REPO_DIR" archive HEAD | tar -x -C "$NEW"
 ok "Source exported to $NEW"
 
-# ── Step 3: composer install + di:compile ─────────────────────────────────────
-step "3/6 — composer install --no-dev + setup:di:compile"
+# ── Step 3: composer install + Hyvä theme assets + di:compile ─────────────────
+step "3/6 — composer install --no-dev, build Hyvä theme assets, setup:di:compile"
 
-mkdir -p "$DEPLOY_PATH/shared/composer-cache"
+mkdir -p "$DEPLOY_PATH/shared/composer-cache" "$DEPLOY_PATH/shared/npm-cache"
 
 docker run --rm \
   -v "$NEW:/app" \
   -v "$DEPLOY_PATH/shared/composer-cache:/root/.composer/cache" \
+  -v "$DEPLOY_PATH/shared/npm-cache:/root/.npm" \
   -e COMPOSER_AUTH="$(cat "$DEPLOY_PATH/auth.json")" \
   -w /app \
-  "$BUILD_IMAGE" bash -c "
+  "$BUILD_IMAGE" bash -c '
     set -euo pipefail
 
-    echo '--- composer install --no-dev ---'
+    echo "--- composer install --no-dev ---"
     composer install --no-dev --no-interaction --optimize-autoloader --prefer-dist
 
-    echo '--- Enable 2FA for production ---'
+    echo "--- Enable 2FA for production ---"
     php bin/magento module:enable \
       Magento_TwoFactorAuth Magento_AdminAdobeImsTwoFactorAuth \
       --no-backup 2>/dev/null || true
@@ -66,9 +69,20 @@ docker run --rm \
       MarkShust_DisableTwoFactorAuth \
       --no-backup 2>/dev/null || true
 
-    echo '--- setup:di:compile ---'
+    echo "--- hyva:config:generate ---"
+    php bin/magento hyva:config:generate
+
+    echo "--- Build Hyvä theme frontend assets (Tailwind) ---"
+    find app/design/frontend -path "*/web/tailwind/package.json" -print0 |
+      while IFS= read -r -d "" pkgjson; do
+        themedir=$(dirname "$pkgjson")
+        echo "  building $themedir"
+        ( cd "$themedir" && npm ci --no-audit --no-fund && npm run build && rm -rf node_modules )
+      done
+
+    echo "--- setup:di:compile ---"
     php bin/magento setup:di:compile
-  "
+  '
 ok "Build complete"
 
 # ── Step 4: Copy shared env.php ───────────────────────────────────────────────

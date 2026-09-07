@@ -379,9 +379,20 @@ return [
         'Magento_WishlistAnalytics' => 1,
         'Magento_WishlistGraphQl' => 1,
         'Magento_WishlistSampleData' => 1,
+        'Hyva_Theme' => 1,
+        'Hyva_CompatModuleFallback' => 1,
+        'Hyva_Email' => 1,
+        'Hyva_GraphqlTokens' => 1,
+        'Hyva_GraphqlViewModel' => 1,
+        'Hyva_MollieThemeBundle' => 1,
+        'Hyva_OrderCancellationWebapi' => 1,
+        'Hyva_BaseLayoutReset' => 1,
         'Mageplaza_Core' => 1,
         'Mageplaza_CronSchedule' => 1,
+        'Magewirephp_Magewire' => 1,
         'MarkShust_DisableTwoFactorAuth' => 1,
+        'Mollie_Payment' => 1,
+        'Mollie_HyvaCompatibility' => 1,
         'PayPal_Braintree' => 1,
         'PayPal_BraintreeCustomerBalance' => 1,
         'PayPal_BraintreeGiftCard' => 1,
@@ -394,6 +405,7 @@ return [
         'Uho_HomeContent' => 1,
         'Uho_NovaposhtaShipping' => 1,
         'Uho_NovaposhtaCheckout' => 1,
+        'Uho_OrderIntake' => 1,
         'Uho_Store' => 1
     ]
 ];

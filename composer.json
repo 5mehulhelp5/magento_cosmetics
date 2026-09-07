@@ -20,6 +20,8 @@
     "version": "2.4.9",
     "require": {
         "cweagans/composer-patches": "^2.0",
+        "hyva-themes/magento2-default-theme": "^1.5",
+        "hyva-themes/magento2-theme-module": "^1.5",
         "magento/composer": "^1.10.1-beta1",
         "magento/composer-dependency-version-audit-plugin": "~0.1",
         "magento/composer-root-update-plugin": "^2.0.4",
@@ -100,6 +102,11 @@
     "minimum-stability": "stable",
     "prefer-stable": true,
     "repositories": [
+        {
+            "name": "hyva-themes",
+            "type": "composer",
+            "url": "https://hyva-themes.repo.packagist.com/prorostok-net-v8vuso/"
+        },
         {
             "type": "composer",
             "url": "https://repo.magento.com/"

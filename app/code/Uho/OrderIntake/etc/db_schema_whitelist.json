@@ -1,0 +1,26 @@
+{
+    "uho_order_intake": {
+        "column": {
+            "entity_id": true,
+            "store_code": true,
+            "total": true,
+            "customer_name": true,
+            "phone": true,
+            "city": true,
+            "delivery_method": true,
+            "tracking_number": true,
+            "status": true,
+            "order_id": true,
+            "error_message": true,
+            "created_at": true,
+            "updated_at": true
+        },
+        "index": {
+            "UHO_ORDER_INTAKE_STATUS": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "UHO_ORDER_INTAKE_TRACKING_NUMBER": true
+        }
+    }
+}

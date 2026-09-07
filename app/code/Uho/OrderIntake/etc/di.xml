@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+
+    <preference for="Uho\OrderIntake\Api\Data\OrderIntakeInterface"
+                type="Uho\OrderIntake\Model\OrderIntake"/>
+    <preference for="Uho\OrderIntake\Api\GetOrderProductInterface"
+                type="Uho\OrderIntake\Model\GetOrderProduct"/>
+    <preference for="Uho\OrderIntake\Api\OrderIntakeManagementInterface"
+                type="Uho\OrderIntake\Model\OrderIntakeManagement"/>
+
+</config>
