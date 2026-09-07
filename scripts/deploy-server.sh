@@ -39,7 +39,10 @@ ok "$(git -C "$REPO_DIR" rev-parse --short HEAD)"
 
 # ── Step 2: Export clean source ───────────────────────────────────────────────
 step "2/6 — Export clean source from git"
-rm -rf "$NEW"
+# Previous builds create files as root inside the build container (bind mount),
+# so remove via the same image rather than the host user, which may lack permission.
+mkdir -p "$DEPLOY_PATH/builds"
+docker run --rm -v "$DEPLOY_PATH/builds:/builds" "$BUILD_IMAGE" rm -rf /builds/new
 mkdir -p "$NEW"
 git -C "$REPO_DIR" archive HEAD | tar -x -C "$NEW"
 ok "Source exported to $NEW"
@@ -137,8 +140,11 @@ docker exec legal-varnish-1 varnishadm vcl.load "$VCL_LABEL" /etc/varnish/defaul
 docker exec legal-varnish-1 varnishadm vcl.use "$VCL_LABEL"
 ok "Varnish VCL reloaded ($VCL_LABEL)"
 
-# Prune old archives (keep 3)
-ls -dt "$ARCHIVE_STORE"/*-prev 2>/dev/null | tail -n +4 | xargs rm -rf 2>/dev/null || true
+# Prune old archives (keep 3) — via container; archived builds contain
+# root-owned files from the build container (see Step 2), so the host user
+# may not have permission to remove them directly.
+docker run --rm -v "$ARCHIVE_STORE:/archive" "$BUILD_IMAGE" \
+  bash -c 'cd /archive && ls -dt -- *-prev 2>/dev/null | tail -n +4 | xargs -r rm -rf --'
 
 echo -e "\n${GREEN}  Deploy $TIMESTAMP complete!${NC}"
 echo    "  Rollback: ./scripts/rollback-server.sh"
