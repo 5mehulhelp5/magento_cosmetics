@@ -72,8 +72,11 @@ docker run --rm \
       MarkShust_DisableTwoFactorAuth \
       --no-backup 2>/dev/null || true
 
-    echo "--- hyva:config:generate ---"
-    php bin/magento hyva:config:generate
+    # app/etc/hyva-themes.json is committed to the repo rather than regenerated
+    # here: "hyva:config:generate" needs app/etc/env.php (DeploymentConfig must
+    # be available), which is not copied in until Step 4. Regenerate it locally
+    # with `bin/magento hyva:config:generate` and commit it when the set of
+    # Hyvä-compatible composer packages changes.
 
     echo "--- Build Hyvä theme frontend assets (Tailwind) ---"
     find app/design/frontend -path "*/web/tailwind/package.json" -print0 |
