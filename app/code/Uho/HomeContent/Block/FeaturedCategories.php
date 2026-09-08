@@ -12,6 +12,8 @@ use Magento\Framework\View\Element\Template;
 use Magento\Framework\View\Element\Template\Context;
 use Magento\Store\Model\StoreManagerInterface;
 
+use function strip_tags;
+use function trim;
 /**
  * Renders the homepage "home-categories" cards from the store's real level-2
  * category tree instead of hand-written CMS block content, so the cards stay

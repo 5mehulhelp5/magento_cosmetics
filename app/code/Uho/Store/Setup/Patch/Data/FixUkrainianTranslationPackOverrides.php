@@ -7,6 +7,7 @@ namespace Uho\Store\Setup\Patch\Data;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\Setup\Patch\DataPatchInterface;
 
+use function crc32;
 /**
  * mageplaza/magento-2-ukrainian-language-pack ships duplicate CSV entries for a handful of
  * phrases (e.g. "Details", "My Account") where a later, untranslated entry overwrites an

@@ -6,6 +6,7 @@ namespace Uho\NovaposhtaCheckout\Block\Checkout;
 
 use Magento\Checkout\Block\Checkout\LayoutProcessorInterface;
 
+use function is_array;
 /**
  * Strips the shipping-address fieldset down to firstname, lastname and telephone plus the two
  * Nova Poshta selectors injected by layout XML; everything else is server-composed by

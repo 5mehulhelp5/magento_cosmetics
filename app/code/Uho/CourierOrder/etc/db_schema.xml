@@ -1,0 +1,68 @@
+<?xml version="1.0"?>
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+    <table name="uho_courier_order_request" resource="default" engine="innodb"
+           comment="Courier Order API - incoming courier order requests">
+        <column xsi:type="int" name="request_id" padding="10" unsigned="true" nullable="false"
+                identity="true" comment="Request ID"/>
+        <column xsi:type="varchar" name="tracking_number" nullable="false" length="64"
+                comment="Courier tracking/order number (natural idempotency key)"/>
+        <column xsi:type="smallint" name="store_id" unsigned="true" nullable="false"
+                comment="Store ID"/>
+        <column xsi:type="varchar" name="full_name" nullable="false" length="255"
+                comment="Raw full name from payload"/>
+        <column xsi:type="varchar" name="phone" nullable="false" length="32"
+                comment="Phone number"/>
+        <column xsi:type="varchar" name="city_name_raw" nullable="false" length="255"
+                comment="City name as submitted"/>
+        <column xsi:type="varchar" name="warehouse_identifier_raw" nullable="false" length="255"
+                comment="Warehouse identifier as submitted"/>
+        <column xsi:type="varchar" name="resolved_city_ref" nullable="true" length="64"
+                comment="Resolved Nova Poshta city ref"/>
+        <column xsi:type="varchar" name="resolved_warehouse_ref" nullable="true" length="64"
+                comment="Resolved Nova Poshta warehouse ref"/>
+        <column xsi:type="decimal" name="total" scale="2" precision="12" nullable="false"
+                comment="Payload total (major units)"/>
+        <column xsi:type="text" name="reconciliation_plan" nullable="true"
+                comment="Serialized reconciliation plan snapshot (JSON)"/>
+        <column xsi:type="varchar" name="status" nullable="false" length="32" default="pending"
+                comment="pending, processing, retry, completed, failed, failed_partial"/>
+        <column xsi:type="smallint" name="attempts" unsigned="true" nullable="false" default="0"
+                comment="Number of processing attempts"/>
+        <column xsi:type="datetime" name="next_retry_at" nullable="true"
+                comment="Earliest time the cron processor may retry"/>
+        <column xsi:type="datetime" name="claimed_at" nullable="true"
+                comment="Time the request was claimed for processing"/>
+        <column xsi:type="text" name="failure_reason" nullable="true"
+                comment="Failure diagnostic message/code"/>
+        <column xsi:type="varchar" name="order_increment_id" nullable="true" length="32"
+                comment="Resulting order increment id (set on completed/failed_partial)"/>
+        <column xsi:type="timestamp" name="created_at" nullable="false" default="CURRENT_TIMESTAMP"
+                comment="Created At"/>
+        <column xsi:type="timestamp" name="updated_at" nullable="false" default="CURRENT_TIMESTAMP"
+                on_update="true" comment="Updated At"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="request_id"/>
+        </constraint>
+        <constraint xsi:type="unique" referenceId="UHO_COURIER_ORDER_REQUEST_TRACKING_NUMBER">
+            <column name="tracking_number"/>
+        </constraint>
+        <index referenceId="UHO_COURIER_ORDER_REQUEST_STATUS" indexType="btree">
+            <column name="status"/>
+        </index>
+        <index referenceId="UHO_COURIER_ORDER_REQUEST_STORE_ID" indexType="btree">
+            <column name="store_id"/>
+        </index>
+    </table>
+    <table name="sales_order" resource="sales" engine="innodb" comment="Sales Flat Order">
+        <column xsi:type="decimal" name="courier_reconciliation_adjustment" scale="4" precision="20"
+                unsigned="false" nullable="true" comment="Courier Reconciliation Adjustment"/>
+        <column xsi:type="decimal" name="base_courier_reconciliation_adjustment" scale="4" precision="20"
+                unsigned="false" nullable="true" comment="Base Courier Reconciliation Adjustment"/>
+    </table>
+    <table name="catalog_product_entity" resource="default" engine="innodb">
+        <column xsi:type="int" name="reconciliation_number" unsigned="true" nullable="false" default="0"
+                comment="Courier reconciliation rotation counter - number of times this product
+                has been selected into an accepted reconciliation plan"/>
+    </table>
+</schema>

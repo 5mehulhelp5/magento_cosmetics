@@ -1,0 +1,44 @@
+{
+    "uho_courier_order_request": {
+        "column": {
+            "request_id": true,
+            "tracking_number": true,
+            "store_id": true,
+            "full_name": true,
+            "phone": true,
+            "city_name_raw": true,
+            "warehouse_identifier_raw": true,
+            "resolved_city_ref": true,
+            "resolved_warehouse_ref": true,
+            "total": true,
+            "reconciliation_plan": true,
+            "status": true,
+            "attempts": true,
+            "next_retry_at": true,
+            "claimed_at": true,
+            "failure_reason": true,
+            "order_increment_id": true,
+            "created_at": true,
+            "updated_at": true
+        },
+        "index": {
+            "UHO_COURIER_ORDER_REQUEST_STATUS": true,
+            "UHO_COURIER_ORDER_REQUEST_STORE_ID": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "UHO_COURIER_ORDER_REQUEST_TRACKING_NUMBER": true
+        }
+    },
+    "sales_order": {
+        "column": {
+            "courier_reconciliation_adjustment": true,
+            "base_courier_reconciliation_adjustment": true
+        }
+    },
+    "catalog_product_entity": {
+        "column": {
+            "reconciliation_number": true
+        }
+    }
+}

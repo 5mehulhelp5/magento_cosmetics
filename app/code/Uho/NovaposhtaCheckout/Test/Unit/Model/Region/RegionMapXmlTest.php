@@ -8,6 +8,9 @@ use DOMDocument;
 use PHPUnit\Framework\TestCase;
 use Uho\NovaposhtaCheckout\Model\Region\Config\Converter;
 
+use function array_values;
+use function dirname;
+use function sprintf;
 /**
  * Guards the shipped etc/np_region_map.xml itself: it is hand-built data and a typo in it
  * would put a wrong region_id on a real order.

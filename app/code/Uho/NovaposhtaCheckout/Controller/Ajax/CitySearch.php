@@ -13,6 +13,7 @@ use Throwable;
 use Uho\NovaposhtaCheckout\Api\CityLocatorInterface;
 use Uho\NovaposhtaCheckout\Api\Data\CitySuggestionInterface;
 
+use function array_map;
 /**
  * GET uho_novaposhta/ajax/citysearch?q=...&limit=...
  *

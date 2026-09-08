@@ -15,6 +15,7 @@ use Psr\Log\LoggerInterface;
 use Uho\NovaposhtaCheckout\Model\Region\RegionMap;
 use Uho\NovaposhtaCheckout\Model\Region\Resolver;
 
+use function str_contains;
 class ResolverTest extends TestCase
 {
     private const string KYIV_CITY_REF = '8d5a980d-391c-11dd-90d9-001a92567626';

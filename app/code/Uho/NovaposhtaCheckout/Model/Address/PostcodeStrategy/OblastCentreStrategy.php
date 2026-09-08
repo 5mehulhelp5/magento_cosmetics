@@ -6,6 +6,7 @@ namespace Uho\NovaposhtaCheckout\Model\Address\PostcodeStrategy;
 
 use Magento\Framework\Exception\LocalizedException;
 
+use function trim;
 /**
  * Returns the postal index of the administrative centre of the address region.
  *

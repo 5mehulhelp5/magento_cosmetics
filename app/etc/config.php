@@ -402,10 +402,12 @@ return [
         'PayPal_BraintreeReward' => 1,
         'Perspective_NovaposhtaCatalog' => 1,
         'Uho_Catalog' => 1,
-        'Uho_HomeContent' => 1,
         'Uho_NovaposhtaShipping' => 1,
+        'Uho_HomeContent' => 1,
         'Uho_NovaposhtaCheckout' => 1,
+        'Uho_CourierOrder' => 1,
         'Uho_OrderIntake' => 1,
-        'Uho_Store' => 1
+        'Uho_Store' => 1,
+        'Uho_StoreOrderEmailPolicy' => 1
     ]
 ];

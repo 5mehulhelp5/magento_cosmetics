@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
+    <menu>
+        <add id="Uho_CourierOrder::courier_order_request"
+             title="Courier Order Requests"
+             module="Uho_CourierOrder"
+             sortOrder="100"
+             parent="Magento_Sales::sales"
+             action="uho_courierorderrequest/courierorderrequest/index"
+             resource="Uho_CourierOrderProcessor::grid"/>
+    </menu>
+</config>

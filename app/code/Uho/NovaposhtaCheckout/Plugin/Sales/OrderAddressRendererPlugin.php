@@ -8,6 +8,7 @@ use Magento\Framework\Escaper;
 use Magento\Sales\Model\Order\Address;
 use Magento\Sales\Model\Order\Address\Renderer;
 
+use function sprintf;
 /**
  * Prepends the Nova Poshta city/warehouse to every rendered order address.
  *

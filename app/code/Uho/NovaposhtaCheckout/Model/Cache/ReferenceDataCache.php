@@ -9,6 +9,11 @@ use Magento\Framework\App\CacheInterface;
 use Magento\Framework\Serialize\SerializerInterface;
 use Psr\Log\LoggerInterface;
 
+use function array_map;
+use function hash;
+use function implode;
+use function is_array;
+use function is_string;
 /**
  * Read-through cache for the locally cron-synced Nova Poshta reference tables.
  *

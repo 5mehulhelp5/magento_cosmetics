@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <section id="uho_courier_order_api" translate="label" type="text" sortOrder="200" showInDefault="1"
+                 showInWebsite="1" showInStore="1">
+            <label>Courier Order API</label>
+            <tab>service</tab>
+            <resource>Uho_CourierOrderApi::create</resource>
+            <group id="reconciliation" translate="label" type="text" sortOrder="10" showInDefault="1"
+                   showInWebsite="1" showInStore="1">
+                <label>Price Reconciliation</label>
+                <field id="adjustment_ceiling_kopecks" translate="label comment" type="text" sortOrder="10"
+                       showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Adjustment Ceiling (kopecks)</label>
+                    <comment>Maximum unreconciled remainder allowed before failing closed. Default 100 (1.00 UAH).</comment>
+                    <validate>validate-zero-or-greater validate-digits</validate>
+                </field>
+                <field id="max_search_nodes" translate="label comment" type="text" sortOrder="20"
+                       showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Max Search Nodes</label>
+                    <comment>Node budget for the bounded DFS refinement search. Default 5000.</comment>
+                    <validate>validate-greater-than-zero validate-digits</validate>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>

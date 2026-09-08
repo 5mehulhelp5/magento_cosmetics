@@ -8,6 +8,8 @@ use Magento\Directory\Model\ResourceModel\Region\CollectionFactory as RegionColl
 use Magento\Framework\Exception\LocalizedException;
 use Psr\Log\LoggerInterface;
 
+use function sprintf;
+use function trim;
 /**
  * Resolves a Nova Poshta oblast name to a Magento region.
  *
