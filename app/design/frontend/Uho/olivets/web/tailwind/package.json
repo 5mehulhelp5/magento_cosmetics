@@ -1,0 +1,29 @@
+{
+    "name": "@uho/theme-frontend-olivets",
+    "version": "1.0.0",
+    "description": "олівець storefront theme, a TailwindCSS and Alpine.js based Hyvä child theme",
+    "type": "module",
+    "dependencies": {
+        "@hyva-themes/hyva-modules": "^1.4.0",
+        "@tailwindcss/cli": "^4.3.1",
+        "tailwindcss": "^4.3.1"
+    },
+    "scripts": {
+        "start": "npm run watch",
+        "generate": "npx hyva-sources && npx hyva-tokens",
+        "watch": "npm run generate && npx tailwindcss -i tailwind-source.css -o ../css/styles.css --watch",
+        "browser-sync": "npx browser-sync start --config ./browser-sync.config.cjs",
+        "build": "npm run generate && npx tailwindcss -i tailwind-source.css -o ../css/styles.css --minify",
+        "build-prod": "npm run build"
+    },
+    "engine-strict": true,
+    "engines": {
+        "node": ">=20.0.0"
+    },
+    "browserslist": [
+        "> 0.5% and not dead"
+    ],
+    "author": "Uho",
+    "license": "proprietary",
+    "private": true
+}

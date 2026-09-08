@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">
+    <table name="uho_order_intake" resource="default" engine="innodb" comment="Order Intake">
+        <column xsi:type="int" name="entity_id" padding="10" unsigned="true" nullable="false"
+                identity="true" comment="Entity ID"/>
+        <column xsi:type="varchar" name="store_code" length="32" nullable="false"
+                comment="Store Code"/>
+        <column xsi:type="decimal" name="total" scale="4" precision="12" unsigned="false"
+                nullable="false" comment="Order Total"/>
+        <column xsi:type="varchar" name="customer_name" length="255" nullable="false"
+                comment="Customer Name"/>
+        <column xsi:type="varchar" name="phone" length="32" nullable="false" comment="Phone"/>
+        <column xsi:type="varchar" name="city" length="255" nullable="false" comment="City"/>
+        <column xsi:type="varchar" name="delivery_method" length="64" nullable="true"
+                comment="Delivery Method"/>
+        <column xsi:type="varchar" name="tracking_number" length="64" nullable="false"
+                comment="Tracking Number"/>
+        <column xsi:type="varchar" name="status" length="16" nullable="false" default="pending"
+                comment="Status"/>
+        <column xsi:type="int" name="order_id" padding="10" unsigned="true" nullable="true"
+                comment="Sales Order ID"/>
+        <column xsi:type="text" name="error_message" nullable="true" comment="Error Message"/>
+        <column xsi:type="timestamp" name="created_at" on_update="false" nullable="false"
+                default="CURRENT_TIMESTAMP" comment="Created At"/>
+        <column xsi:type="timestamp" name="updated_at" on_update="true" nullable="false"
+                default="CURRENT_TIMESTAMP" comment="Updated At"/>
+        <constraint xsi:type="primary" referenceId="PRIMARY">
+            <column name="entity_id"/>
+        </constraint>
+        <constraint xsi:type="unique" referenceId="UHO_ORDER_INTAKE_TRACKING_NUMBER">
+            <column name="tracking_number"/>
+        </constraint>
+        <index referenceId="UHO_ORDER_INTAKE_STATUS" indexType="btree">
+            <column name="status"/>
+        </index>
+    </table>
+</schema>

@@ -1,0 +1,16 @@
+{
+    "name": "uho/theme-frontend-olivets",
+    "description": "олівець storefront theme, a Hyvä child theme",
+    "type": "magento2-theme",
+    "version": "1.0.0",
+    "license": "proprietary",
+    "require": {
+        "php": "~8.3.0||~8.4.0||~8.5.0",
+        "hyva-themes/magento2-default-theme": "*"
+    },
+    "autoload": {
+        "files": [
+            "registration.php"
+        ]
+    }
+}
