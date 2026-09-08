@@ -1,0 +1,49 @@
+<?php
+/**
+ * олівець "Playful Pastel" homepage category tiles.
+ *
+ * Rounded, tint-background tiles for the top-level catalog nav categories —
+ * reuses the same Navigation view model as the header menu (see
+ * Magento_Theme::html/header/menu/desktop.phtml) so this stays in sync with
+ * the real catalog structure instead of hardcoding category IDs/names.
+ */
+
+declare(strict_types=1);
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\Navigation;
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+
+/** @var Template $block */
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+
+/** @var Navigation $viewModelNavigation */
+$viewModelNavigation = $viewModels->require(Navigation::class, $block);
+$menuItems = $viewModelNavigation->getNavigation(4);
+$block->setData('cache_tags', $viewModelNavigation->getIdentities());
+
+$tileBackgrounds = ['bg-primary-tint', 'bg-secondary-tint'];
+?>
+<?php if ($menuItems): ?>
+    <section class="container py-12">
+        <h2 class="font-display text-2xl font-bold text-ink mb-6">
+            <?= $escaper->escapeHtml(__('Категорії')) ?>
+        </h2>
+        <div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
+            <?php $tileCount = 0; ?>
+            <?php foreach ($menuItems as $menuItem): ?>
+                <a
+                    href="<?= $escaper->escapeUrl($menuItem['url']) ?>"
+                    class="flex flex-col items-center justify-center rounded-2xl <?= $escaper->escapeHtmlAttr($tileBackgrounds[$tileCount % 2]) ?> px-4 py-10 text-center shadow-card transition hover:-translate-y-0.5"
+                >
+                    <span class="font-display text-lg font-semibold text-ink">
+                        <?= $escaper->escapeHtml($menuItem['name']) ?>
+                    </span>
+                </a>
+                <?php $tileCount++; ?>
+            <?php endforeach; ?>
+        </div>
+    </section>
+<?php endif; ?>

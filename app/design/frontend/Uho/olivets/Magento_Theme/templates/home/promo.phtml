@@ -1,0 +1,20 @@
+<?php
+/**
+ * олівець "Playful Pastel" homepage promo block.
+ *
+ * Structural shell only — copy comes from the "olivets_home_promo" CMS
+ * block (child block, see layout/cms_index_index.xml), same
+ * marketer-editable pattern as the hero.
+ */
+
+declare(strict_types=1);
+
+use Magento\Framework\View\Element\Template;
+
+/** @var Template $block */
+?>
+<section class="container py-12">
+    <div class="rounded-3xl bg-surface shadow-card px-6 py-12 text-center sm:px-12">
+        <?= $block->getChildHtml() ?>
+    </div>
+</section>

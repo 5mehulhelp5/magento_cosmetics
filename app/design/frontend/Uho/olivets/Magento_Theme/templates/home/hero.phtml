@@ -1,0 +1,21 @@
+<?php
+/**
+ * олівець "Playful Pastel" homepage hero.
+ *
+ * Structural shell only (pastel gradient, rounding, spacing) — the actual
+ * headline/subcopy/CTA copy comes from the "olivets_home_hero" CMS block
+ * (child block, see layout/cms_index_index.xml) so marketers can edit it in
+ * Admin > Content > Blocks without a code deploy.
+ */
+
+declare(strict_types=1);
+
+use Magento\Framework\View\Element\Template;
+
+/** @var Template $block */
+?>
+<section class="mx-4 mt-6 rounded-3xl bg-gradient-to-br from-primary-tint to-secondary-tint px-6 py-16 sm:px-12 sm:py-24 lg:mx-auto lg:max-w-7xl">
+    <div class="mx-auto max-w-3xl text-center">
+        <?= $block->getChildHtml() ?>
+    </div>
+</section>

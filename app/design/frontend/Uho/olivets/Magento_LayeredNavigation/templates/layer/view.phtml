@@ -1,0 +1,141 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes. All rights reserved.
+ * See COPYING.txt for license details.
+ *
+ * олівець "Playful Pastel" override: filter panel restyled from neutral
+ * grays to the primary-tint token (border/background), rounded chevron
+ * badges. Alpine logic unchanged from Hyvä default (already CSP-safe).
+ */
+
+declare(strict_types=1);
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\HyvaCsp;
+use Hyva\Theme\ViewModel\LucideIcons;
+use Magento\Framework\Escaper;
+use Magento\LayeredNavigation\Block\Navigation;
+
+// phpcs:disable Generic.Files.LineLength.TooLong
+
+/** @var Navigation $block */
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+/** @var HyvaCsp $hyvaCsp */
+
+/** @var LucideIcons $lucideIcons */
+$lucideIcons = $viewModels->require(LucideIcons::class);
+?>
+
+<?php if ($block->canShowBlock()): ?>
+    <div
+        role="region"
+        aria-label="<?= $escaper->escapeHtmlAttr(__('Product filters')) ?>"
+        class="block border border-primary-tint bg-primary-tint/40 rounded-2xl p-4 md:border-0 md:bg-transparent md:py-0 md:px-0 my-6"
+        x-data="initLayeredNavigation"
+        x-bind="eventListeners"
+    >
+        <h2
+            id="filters-heading"
+            class="block-title"
+        >
+            <button
+                type="button"
+                @click="toggleBlockOpen"
+                class="group block-title flex items-center justify-between w-full text-start md:cursor-text md:select-text"
+                aria-controls="filters-content"
+                :aria-expanded="blockOpen"
+                :aria-disabled="isNotMobile"
+                :disabled="isNotMobile"
+            >
+                <span class="text-md md:text-3xl font-display font-semibold text-ink">
+                    <?= $escaper->escapeHtml(__('Shop By')) ?>
+                </span>
+                <span
+                    class="py-1 px-1 bg-surface rounded-lg border border-primary-tint md:hidden"
+                    x-ref="LayeredNavigationMobileToggleIcon"
+                >
+                    <?= $lucideIcons->chevronDownHtml(
+                        'transition-transform group-aria-expanded:rotate-180',
+                        24,
+                        24,
+                        ["aria-hidden" => "true"]
+                    ); ?>
+                </span>
+            </button>
+        </h2>
+        <div
+            id="filters-content"
+            class="block-content filter-content pt-4 hidden md:block data-[open=true]:block"
+            :data-open="blockOpen"
+        >
+            <?= $block->getChildHtml('state') ?>
+            <a
+                href="#product-list"
+                class="sr-only focus:not-sr-only btn btn-primary rounded-full flex"
+            >
+                <?= $escaper->escapeHtml(__('Skip to product list')) ?>
+            </a>
+            <?php foreach ($block->getFilters() as $filter): ?>
+                <?php if ($filter->getItemsCount()): ?>
+                    <details class="group filter-option card rounded-2xl border-transparent shadow-card p-0 my-4">
+                        <summary class="filter-options-title list-none flex justify-between items-center cursor-pointer py-4 px-5">
+                            <h3 class="inline-block text-md md:text-lg font-semibold text-ink">
+                                <?= $escaper->escapeHtml(__($filter->getName())) ?>
+                                <span class="sr-only"> <?= $escaper->escapeHtml(__('filter')) ?></span>
+                            </h3>
+                            <span class="p-1 rounded-lg border border-primary-tint">
+                                <?= $lucideIcons->chevronDownHtml(
+                                    'transition-transform group-open:rotate-180',
+                                    24,
+                                    24,
+                                    ["aria-hidden" => "true"]
+                                ); ?>
+                            </span>
+                        </summary>
+                        <div class="filter-options-content py-4 px-5 border-t border-primary-tint">
+                            <?= /* @noEscape */ $block->getChildBlock('renderer')->setFilterTitle($filter->getName())->render($filter); ?>
+                        </div>
+                    </details>
+                <?php endif; ?>
+            <?php endforeach; ?>
+        </div>
+    </div>
+    <script>
+        function initLayeredNavigation() {
+            return {
+                isMobile: false,
+                blockOpen: false,
+                init() {
+                    this.checkIsMobileResolution();
+                },
+                isNotMobile() {
+                    return !this.isMobile;
+                },
+                toggleBlockOpen() {
+                    this.blockOpen = !this.blockOpen;
+                },
+                checkIsMobileResolution() {
+                    const mobileElement = this.$refs.LayeredNavigationMobileToggleIcon;
+                    this.isMobile = mobileElement
+                        ? getComputedStyle(mobileElement).display !== "none"
+                        : window.matchMedia('(max-width: 767px)').matches; // Fallback to `md` breakpoint
+                },
+                eventListeners: {
+                    ['@resize.window.debounce']() {
+                        this.checkIsMobileResolution();
+                    },
+                    ['@visibilitychange.window.debounce']() {
+                        this.checkIsMobileResolution();
+                    }
+                }
+            }
+        }
+
+        window.addEventListener('alpine:init', () => {
+            Alpine.data('initLayeredNavigation', initLayeredNavigation)
+        }, { once: true })
+    </script>
+    <?php $hyvaCsp->registerInlineScript() ?>
+<?php endif; ?>

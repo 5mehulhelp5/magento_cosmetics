@@ -1,0 +1,26 @@
+<?php
+/**
+ * олівець — text wordmark partial.
+ *
+ * Isolated on purpose (per the "Playful Pastel" spec's Logo section) so it is
+ * a one-file swap if a real logo/mascot is designed later, instead of the
+ * wordmark markup being scattered inline across header/footer templates.
+ *
+ * This is a plain PHP partial, not a standalone block template — include it
+ * directly (`include __DIR__ . '/wordmark.phtml';` or an adjusted relative
+ * path) from a parent .phtml that already has `$escaper` in scope.
+ *
+ * Optional variable (set before including):
+ * @var string $wordmarkVariant 'ink' (default, light surfaces) or 'cream' (dark footer)
+ */
+
+declare(strict_types=1);
+
+/** @var \Magento\Framework\Escaper $escaper */
+
+$wordmarkVariant = $wordmarkVariant ?? 'ink';
+$wordmarkColorClass = $wordmarkVariant === 'cream' ? 'text-bg' : 'text-ink';
+?>
+<span class="font-display text-2xl font-bold tracking-tight <?= $escaper->escapeHtmlAttr($wordmarkColorClass) ?>">
+    <?= $escaper->escapeHtml(__('олівець')) ?>
+</span>

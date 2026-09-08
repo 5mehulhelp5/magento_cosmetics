@@ -1,0 +1,42 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes. All rights reserved.
+ * See COPYING.txt for license details.
+ *
+ * олівець "Playful Pastel" override: pill-shaped (rounded-full) add-to-cart
+ * button using the token-driven .btn-primary component class.
+ */
+
+declare(strict_types=1);
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\LucideIcons;
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+
+/** @var Template $block */
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+
+/** @var LucideIcons $lucideIcons */
+$lucideIcons = $viewModels->require(LucideIcons::class);
+
+$buttonLabel = $block->getData('is_cart_configure')
+    ? __('Update item')
+    : __('Add to Cart');
+?>
+
+<button
+    type="submit"
+    form="product_addtocart_form"
+    aria-label="<?= $escaper->escapeHtmlAttr($buttonLabel) ?>"
+    class="btn btn-primary rounded-full"
+    id="product-addtocart-button"
+    data-addto="cart"
+>
+    <?= $lucideIcons->shoppingCartHtml('', 24, 24, ['aria-hidden' => 'true']); ?>
+    <span class="hidden sm:block md:hidden lg:block"><?= $escaper->escapeHtml($buttonLabel) ?></span>
+</button>
+
+<?= $block->getChildHtml('', true) ?>

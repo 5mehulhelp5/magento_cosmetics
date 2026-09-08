@@ -10,15 +10,94 @@
 @source "../../**/*.phtml";
 @source "../../**/*.xml";
 
+/*
+ * The bare scaffold never pulled in the parent Hyva/default theme's own
+ * base/component/theme/utility CSS (.btn, .card, form inputs, etc. defined
+ * via @utility / @layer components) — only .phtml files are inherited
+ * through Magento's theme fallback, not compiled CSS. Import the same four
+ * source directories the parent theme's own tailwind-source.css imports, so
+ * every Hyvä-default template rendered through this child theme (not just
+ * the ones overridden here) gets correctly styled base components.
+ */
+@import "../../../../../../../vendor/hyva-themes/magento2-default-theme/web/tailwind/base";
+@import "../../../../../../../vendor/hyva-themes/magento2-default-theme/web/tailwind/components";
+@import "../../../../../../../vendor/hyva-themes/magento2-default-theme/web/tailwind/theme";
+@import "../../../../../../../vendor/hyva-themes/magento2-default-theme/web/tailwind/utilities";
+
 /* Import generated styles for Hyvä Compatible Modules and Design Tokens */
 @import "./generated/hyva-source.css";
 @import "./generated/hyva-tokens.css";
 
-@theme {
-    --color-ink: var(--color-slate-950);
-    --color-ink-muted: var(--color-slate-600);
+/* Self-hosted brand fonts (Unbounded / Nunito) — see ../css/fonts.css */
+@import "../css/fonts.css";
+
+/**
+ * олівець — "Playful Pastel" brand tokens.
+ * See docs/superpowers/specs/2026-09-08-olivets-theme-visual-redesign-design.md
+ * for the full palette rationale and WCAG contrast verification.
+ */
+@theme static {
+    /* Decorative tint backgrounds — pair with ink text only, never white text */
+    --color-primary-tint: #FFE3EE;
+    --color-secondary-tint: #DCEBFF;
+
+    /*
+     * Hover/active shade variants — referenced by the Hyvä default theme's
+     * own .btn-primary / .btn-secondary component classes
+     * (vendor/hyva-themes/magento2-default-theme/web/tailwind/components/button.css)
+     * but never defined anywhere in that theme's own token chain either.
+     *
+     * Accessibility note: .btn-primary's hover state pairs this "lighter"
+     * token with white text as the *background*. Our primary (#C93A70) only
+     * clears white-text contrast at 4.86:1 to begin with (spec's verified
+     * baseline) — lightening it *towards* white on hover (the literal,
+     * naive reading of "-lighter") would drop that below the 4.5:1 AA
+     * floor for any lightening amount (verified: even a 15% white mix only
+     * reaches 3.86:1). So both tokens below mix *towards black* instead —
+     * hover/active states read as a deeper shade of primary rather than a
+     * paler one. This still gives clear visible feedback and keeps every
+     * pairing that uses these tokens (white text on hover-bg, dark text on
+     * white for .btn-secondary) at AA-safe contrast. See
+     * docs/BRAND_GUIDE_olivets.md for the full contrast table.
+     */
+    --color-primary-lighter: color-mix(in oklab, var(--color-primary) 80%, black);
+    --color-primary-darker: color-mix(in oklab, var(--color-primary) 40%, black);
+
+    /* Page surfaces */
+    --color-bg: #FFF8F1;
+    --color-surface: #FFFFFF;
+
+    /* Text */
+    --color-ink: #4A3F35;
+    --color-ink-muted: #7A6E62;
     --color-fg: var(--color-ink);
     --color-fg-secondary: var(--color-ink-muted);
-    --color-bg: var(--color-slate-50);
-    --color-surface: var(--color-white);
+
+    /* Semantic status colors */
+    --color-success: #2F9E64;
+    --color-error: #D6455E;
+    --color-warning: #E8A23A;
+
+    /* Typography */
+    --font-display: "Unbounded", ui-sans-serif, system-ui, sans-serif;
+    --font-sans: "Nunito", ui-sans-serif, system-ui, sans-serif;
+
+    /* Soft ink-tinted card shadow */
+    --shadow-card: 0 4px 14px rgba(74, 63, 53, 0.08);
+}
+
+/*
+ * .btn-secondary's :active/pressed state (vendor button.css) sets a solid
+ * --color-primary background with --color-primary-darker text — a dark
+ * text-on-medium-dark-bg pairing that can't clear 4.5:1 no matter how
+ * --color-primary-darker is tuned (verified up to ~3.3:1 at best). Override
+ * just that state to use the on-primary (white) text color instead, which
+ * is already the AA-verified pairing used everywhere else against
+ * --color-primary. This is additive CSS in our own theme, not an edit to
+ * the vendor component file.
+ */
+@layer components {
+    .btn-secondary:is(:active, .is-active, [aria-current="page"], [aria-current="true"]) {
+        color: var(--color-on-primary);
+    }
 }

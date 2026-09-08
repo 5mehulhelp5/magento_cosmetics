@@ -1,0 +1,193 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes. All rights reserved.
+ * See COPYING.txt for license details.
+ *
+ * олівець "Playful Pastel" override: surface background, pill-shaped
+ * search/cart icon buttons with a primary-tint hover state, rose
+ * (--color-primary) cart count badge. Alpine logic is unchanged from the
+ * Hyvä default (already CSP-safe — named x-data method, no inline
+ * expressions), only Tailwind classes were restyled.
+ */
+
+declare(strict_types=1);
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\HyvaCsp;
+use Hyva\Theme\ViewModel\LucideIcons;
+use Hyva\Theme\ViewModel\StoreConfig;
+use Magento\Checkout\Block\Cart\Sidebar as SidebarCart;
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+
+/** @var Escaper $escaper */
+/** @var Template $block */
+/** @var ViewModelRegistry $viewModels */
+/** @var HyvaCsp $hyvaCsp */
+
+/** @var LucideIcons $lucideIcons */
+$lucideIcons = $viewModels->require(LucideIcons::class);
+
+/** @var StoreConfig $storeConfig */
+$storeConfig = $viewModels->require(StoreConfig::class);
+$showMiniCart = $storeConfig->getStoreConfig(SidebarCart::XML_PATH_CHECKOUT_SIDEBAR_DISPLAY);
+
+$showCompare = $block->getShowCompare() !== null ? (bool) $block->getShowCompare() : true;
+$showWishlist = $block->getShowWishlist() !== null ? (bool) $block->getShowWishlist() : false;
+?>
+<script>
+    function initHeader() {
+        return {
+            searchOpen: false,
+            cart: {},
+            isCartOpen: false,
+            getData(data) {
+                this.cart = data.cart ?? {};
+            },
+            summaryCount() {
+                return this.cart.summary_count || 0;
+            },
+            cartAriaLabel() {
+                return '<?= $escaper->escapeJs($showMiniCart ? __('Toggle minicart') : __('View cart')) ?>, ' +
+                    (this.isCartEmpty() ? '<?= $escaper->escapeJs(__('Cart is empty')) ?>' : (
+                        Math.abs(this.summaryCount()) > 1 ?
+                            hyva.str('<?= $escaper->escapeJs(__('%1 items')) ?>', this.summaryCount()) :
+                            hyva.str('<?= $escaper->escapeJs(__('%1 item')) ?>', this.summaryCount())
+                    ))
+            },
+            isCartEmpty() {
+                return !this.cart.summary_count;
+            },
+            toggleCart() {
+                this.isCartOpen = this.$event.detail?.isOpen ?? true;
+                this.$dispatch('toggle-cart', { isOpen: this.isCartOpen })
+            },
+            toggleSearch() {
+                this.searchOpen = !this.searchOpen;
+                this.$dispatch('search-open');
+            },
+            toggleSearchOpen() {
+                this.searchOpen = true;
+                this.$dispatch('search-open');
+            },
+            searchClose() {
+                this.searchOpen = false;
+                this.$refs.searchButton.focus();
+            },
+            searchEscape() {
+                this.searchClose();
+            },
+            isMac: /Mac|iPod|iPhone|iPad/.test(navigator.platform),
+            textShortcutModifier() {
+                return this.isMac ? '⌘ K' : 'Ctrl+K';
+            },
+            searchShortcut(e) {
+                const modifier = this.isMac ? e.metaKey : e.ctrlKey;
+                if (modifier && e.key === 'k') {
+                    e.preventDefault();
+                    this.toggleSearchOpen();
+                }
+            }
+        }
+    }
+
+    window.addEventListener('alpine:init', () => {
+        Alpine.data('initHeader', initHeader);
+    }, { once: true })
+</script>
+<?php $hyvaCsp->registerInlineScript() ?>
+
+<div id="header"
+     class="relative z-30 w-full border-b shadow-card bg-surface border-primary-tint"
+     x-data="initHeader()"
+     @private-content-loaded.window="getData(event.detail.data)"
+>
+    <div class="container flex flex-wrap lg:flex-nowrap items-center justify-between w-full px-6 py-3 mx-auto mt-0">
+        <!--Logo-->
+        <div class="sm:order-1 lg:order-0 w-full pb-2 sm:w-auto sm:pb-0">
+            <?= $block->getChildHtml('logo'); ?>
+        </div>
+
+        <!--Main Navigation-->
+        <?= $block->getChildHtml('topmenu') ?>
+
+        <div class="flex items-center gap-2 md:gap-1 order-1 lg:order-0 md:-mr-1">
+            <?php if ($showCompare): ?>
+                <?= $block->getChildHtml('compare'); ?>
+            <?php endif; ?>
+
+            <button
+                id="menu-search-icon"
+                class="btn bg-transparent border-transparent rounded-full p-2 text-ink hover:bg-primary-tint hover:text-primary"
+                @click.prevent="toggleSearch"
+                @keydown.window="searchShortcut"
+                aria-label="<?= $escaper->escapeHtmlAttr(__('Toggle search form')) ?>"
+                aria-haspopup="true"
+                :aria-expanded="searchOpen"
+                :aria-keyshortcuts="textShortcutModifier"
+                x-ref="searchButton"
+            >
+                <?= $lucideIcons->searchHtml('', 24, 24, ["aria-hidden" => "true"]) ?>
+            </button>
+
+            <?= $block->getChildHtml('additional') ?>
+
+            <?= $block->getChildHtml('customer') ?>
+
+            <?php if ($showWishlist): ?>
+                <?= $block->getChildHtml('wishlist') ?>
+            <?php endif ?>
+
+            <?php if ($showMiniCart): ?>
+                <button
+            <?php else: ?>
+                <a
+            <?php endif ?>
+                id="menu-cart-icon"
+                type="button"
+                class="relative btn bg-transparent border-transparent rounded-full p-2 text-ink hover:bg-primary-tint hover:text-primary"
+                x-ref="cartButton"
+                :aria-label="cartAriaLabel"
+                <?php if ($showMiniCart): ?>
+                    @click="toggleCart"
+                    aria-label="<?= $escaper->escapeHtmlAttr(__('Toggle minicart')) ?>"
+                <?php else: ?>
+                    href="<?= $escaper->escapeUrl($block->getUrl('checkout/cart/index')) ?>"
+                    aria-label="<?= $escaper->escapeHtmlAttr(__('View cart')) ?>"
+                <?php endif ?>
+            >
+                <?= $lucideIcons->shoppingCartHtml("md:h-6 md:w-6", 28, 28, ["aria-hidden" => "true"]) ?>
+                <span
+                    x-text="summaryCount"
+                    x-show="summaryCount"
+                    x-cloak
+                    class="absolute -top-1.5 -right-1.5 px-2 py-1 rounded-full bg-primary text-on-primary text-xs
+                        font-semibold leading-none text-center uppercase tabular-nums"
+                    aria-hidden="true"
+                ></span>
+            <?php if ($showMiniCart): ?>
+                </button>
+            <?php else: ?>
+                </a>
+            <?php endif ?>
+        </div>
+    </div>
+
+    <div
+        id="search-content"
+        class="absolute z-10 w-full border-t shadow-card bg-surface border-primary-tint"
+        x-cloak
+        x-show="searchOpen"
+        @click.outside="searchClose"
+        @keydown.escape="searchEscape"
+    >
+        <?= $block->getChildHtml('header-search'); ?>
+    </div>
+
+    <!--Cart Drawer-->
+    <?= $block->getChildHtml('cart-drawer'); ?>
+
+    <!--Authentication Pop-Up-->
+    <?= $block->getChildHtml('authentication-popup'); ?>
+</div>

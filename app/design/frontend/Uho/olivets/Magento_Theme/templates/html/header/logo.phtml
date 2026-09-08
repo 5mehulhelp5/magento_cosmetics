@@ -1,0 +1,26 @@
+<?php
+/**
+ * олівець — header logo slot.
+ *
+ * Overrides the Hyvä default image-based logo with the text wordmark
+ * partial (see Logo section of the "Playful Pastel" design spec — wordmark
+ * only for this pass, no mascot/icon artwork).
+ */
+
+declare(strict_types=1);
+
+use Magento\Framework\Escaper;
+use Magento\Theme\Block\Html\Header\Logo;
+
+/** @var Logo $block */
+/** @var Escaper $escaper */
+
+$wordmarkVariant = 'ink';
+?>
+<a
+    class="flex items-center justify-center"
+    href="<?= $escaper->escapeUrl($block->getUrl('')) ?>"
+    aria-label="<?= $escaper->escapeHtmlAttr(__('Go to Home page')) ?>"
+>
+    <?php include __DIR__ . '/wordmark.phtml'; ?>
+</a>

@@ -1,0 +1,30 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes. All rights reserved.
+ * See COPYING.txt for license details.
+ *
+ * олівець "Playful Pastel" override: summary card restyled with rounded
+ * corners and the shared card-shadow token.
+ */
+
+declare(strict_types=1);
+
+use Magento\Checkout\Block\Cart;
+use Magento\Framework\Escaper;
+
+/** @var Cart $block */
+/** @var Escaper $escaper */
+?>
+
+<div class="flex flex-col lg:flex-row-reverse lg:items-start gap-8">
+    <div class="card rounded-2xl border-transparent shadow-card lg:w-80 2xl:w-96 lg:sticky lg:top-4">
+        <h2 class="text-lg font-display font-bold text-ink"><?= $escaper->escapeHtml(__('Summary')) ?></h2>
+        <?= $block->getChildHtml('cart.summary') ?>
+    </div>
+    <div class="lg:flex-1">
+        <?= $block->getChildHtml('form_before') ?>
+        <?= $block->getChildHtml('cart-items') ?>
+        <?= $block->getChildHtml('checkout_cart_widget') ?>
+    </div>
+</div>

@@ -1,0 +1,47 @@
+/**
+ * олівець — self-hosted brand fonts (Unbounded / Nunito).
+ *
+ * Cyrillic + Cyrillic-ext subset woff2 files live in ../fonts/. Files are not
+ * loaded from the Google Fonts CDN in production (CSP/perf/privacy) — see
+ * docs/BRAND_GUIDE_olivets.md for the full typography rationale.
+ */
+
+@font-face {
+    font-family: "Unbounded";
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src: url("../fonts/unbounded-600.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Unbounded";
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url("../fonts/unbounded-700.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Nunito";
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url("../fonts/nunito-400.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Nunito";
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src: url("../fonts/nunito-600.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Nunito";
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url("../fonts/nunito-700.woff2") format("woff2");
+}
