@@ -1,0 +1,577 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes. All rights reserved.
+ * See COPYING.txt for license details.
+ *
+ * олівець "Playful Pastel" override: gallery track/caption backgrounds
+ * restyled from neutral gray/white to the surface/primary-tint tokens.
+ * Alpine gallery/lightbox logic is otherwise untouched from the Hyvä
+ * default (already CSP-safe — named x-data methods, no inline args).
+ */
+
+declare(strict_types=1);
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\Product\Placeholder;
+use Hyva\Theme\ViewModel\StoreConfig;
+use Hyva\Theme\ViewModel\LucideIcons;
+use Hyva\Theme\ViewModel\HyvaCsp;
+use Magento\Catalog\Block\Product\View\Gallery;
+use Magento\Framework\Escaper;
+
+/** @var Escaper $escaper */
+/** @var Gallery $block */
+/** @var ViewModelRegistry $viewModels */
+/** @var HyvaCsp $hyvaCsp */
+
+/** @var Placeholder $placeholder */
+$placeholder = $viewModels->require(Placeholder::class);
+
+/** @var StoreConfig $storeConfig */
+$storeConfig = $viewModels->require(StoreConfig::class);
+
+/** @var LucideIcons $lucideIcons */
+$lucideIcons = $viewModels->require(LucideIcons::class);
+
+$productName = $block->getProduct()->getName();
+
+$images = $block->getGalleryImages()->getItems();
+$mainImage = current(array_filter($images, [$block, 'isMainImage']));
+
+if (!empty($images) && empty($mainImage)) {
+    $mainImage = reset($images);
+}
+
+$usePlaceholder = false;
+if ($mainImage) {
+    $images = array_merge(
+        [$mainImage],
+        array_values(array_filter($images, fn($img) => $img !== $mainImage))
+    );
+} elseif (empty($images)) {
+    $usePlaceholder = true;
+    $images = $placeholder->getPlaceholderImages();
+}
+$images = array_values($images);
+$imageCount = count($images);
+$isConfigurable = $block->getProduct()->getTypeId() === 'configurable';
+
+$smallWidth = (int) $block->getImageAttribute('product_page_image_small', 'width', 60);
+$smallHeight = (int) $block->getImageAttribute('product_page_image_small', 'height', 60);
+$mediumWidth = (int) $block->getImageAttribute('product_page_image_medium', 'width', 700);
+$mediumHeight = (int) $block->getImageAttribute('product_page_image_medium', 'height', 700);
+
+// Config
+$videoLoop = (bool) $storeConfig->getStoreConfig('catalog/product_video/video_auto_restart') ?? false;
+$replaceOnReceive = $usePlaceholder || $block->getVar('gallery_switch_strategy', 'Magento_ConfigurableProduct') !== 'append';
+$useLoop = (bool) $block->getVar('gallery/loop', 'Magento_Catalog') ?? true;
+$showCaption = (bool) $block->getVar('gallery/caption', 'Magento_Catalog') ?? true;
+$pagerStyle = $block->getVar('gallery/pager', 'Magento_Catalog') ?: 'thumbs';
+$pagerDir = $block->getVar('gallery/pagerdir', 'Magento_Catalog') ?: 'vertical';
+$navStyle = $block->getVar('gallery/nav', 'Magento_Catalog') ?: 'end';
+$maxThumbs = (int) ($block->getVar('gallery/maxthumbs', 'Magento_Catalog') ?: round($mediumWidth / $smallWidth / 2));
+
+// CSS
+$cssClasses = implode(' ', array_filter([
+    'snap-slider relative',
+    $block->getCssClasses() ?: '',
+    $pagerDir === 'vertical' ? 'lg:flex' : ''
+]));
+$cssVars = implode('; ', [
+    "--gallery-ratio:{$mediumWidth}/{$mediumHeight}",
+    "--thumb-ratio:{$smallWidth}/{$smallHeight}",
+]);
+$btnCssClasses = 'btn btn-secondary border-transparent p-1 rounded-full shadow-sm pointer-events-auto';
+$btnIconSize = 28;
+
+$trackCssClasses = implode(' ', array_filter([
+    'flex overflow-x-auto overflow-y-clip overscroll-x-contain snap-x snap-mandatory',
+    'aspect-(--gallery-ratio) bg-surface text-fg',
+    'motion-safe:scroll-smooth scrollbar-none'
+]));
+
+$pagerWrapperCssClasses = implode(' ', array_filter([
+    'snap-pager transition-none',
+    $pagerDir === 'vertical' ? 'lg:flex-col lg:justify-start lg:order-first lg:shrink-0 lg:py-0 lg:pe-4' : '',
+    $pagerStyle === 'dots' ? '' : 'lg:gap-2'
+]));
+
+$pagerCssClasses = implode(' ', array_filter([
+    'snap-pager py-0',
+    $pagerDir === 'vertical' ? 'lg:flex-col lg:justify-start *:lg:transition-colors' : '',
+    $pagerStyle === 'dots' ? '' : 'lg:gap-2'
+]));
+
+$pagerMarkerCssClasses = 'snap-marker stack overflow-hidden inset-ring-primary '
+    . ($pagerStyle === 'dots'
+        ? 'lg:size-4'
+        : 'lg:size-auto lg:rounded-md lg:p-px lg:data-[overflow]:hidden lg:aria-current:bg-transparent lg:aria-current:inset-ring');
+
+$navVertical = $pagerDir === 'vertical' && $navStyle !== 'center';
+$navCssClasses = implode(' ', array_filter([
+    'z-10 absolute flex gap-2',
+    $navStyle === 'end' ? 'bottom-2 end-2' : '',
+    $navStyle === 'start' ? 'bottom-2 start-2' : '',
+    $navStyle === 'center' ? 'top-1/2 -translate-y-1/2 inset-x-2 justify-between pointer-events-none' : '',
+]));
+
+$captionCssClasses = 'absolute bottom-2 text-sm py-1 px-2 rounded bg-primary-tint/80 text-ink max-w-2/3 text-pretty'
+    . ($navStyle === 'start' ? ' end-2' : ' start-2');
+?>
+
+<section
+    id="gallery"
+    class="<?= $escaper->escapeHtmlAttr($cssClasses) ?>"
+    data-slider-type="gallery"
+    x-data="initGallery"
+    x-snap-slider
+    x-bind="eventListeners"
+    aria-label="<?= $escaper->escapeHtmlAttr(__('Gallery')) ?>"
+    <?php if ($useLoop): ?>
+        data-loop
+    <?php endif; ?>
+    <?php if ($isConfigurable): ?>
+        data-force-pager
+    <?php endif; ?>
+    style="<?= $escaper->escapeHtmlAttr($cssVars) ?>"
+>
+    <a
+        href="#gallery-slider-end"
+        class="sr-only focus:not-sr-only focus:absolute focus:z-30 focus:bg-surface"
+    ><?= $escaper->escapeHtml(__('Press to skip carousel')) ?></a>
+
+    <div class="relative">
+        <?= $block->getChildHtml('gallery.additional') ?>
+
+        <?php if ($navStyle !== 'none'): ?>
+            <div class="<?= $escaper->escapeHtmlAttr($navCssClasses) ?>">
+                <button
+                    type="button"
+                    class="<?= $escaper->escapeHtmlAttr($btnCssClasses) ?>"
+                    aria-label="<?= $escaper->escapeHtmlAttr(__('Previous image')) ?>"
+                    data-prev
+                    hidden
+                    x-show="showArrows"
+                >
+                    <?= $lucideIcons->chevronLeftHtml('rtl:rotate-180', $btnIconSize, $btnIconSize, ['aria-hidden' => 'true']); ?>
+                </button>
+
+                <button
+                    type="button"
+                    class="<?= $escaper->escapeHtmlAttr($btnCssClasses) ?>"
+                    aria-label="<?= $escaper->escapeHtmlAttr(__('Next image')) ?>"
+                    data-next
+                    hidden
+                    x-show="showArrows"
+                >
+                    <?= $lucideIcons->chevronRightHtml('rtl:rotate-180', $btnIconSize, $btnIconSize, ['aria-hidden' => 'true']); ?>
+                </button>
+            </div>
+        <?php endif; ?>
+
+        <div
+            id="gallery-main"
+            data-track
+            class="<?= $escaper->escapeHtmlAttr($trackCssClasses) ?>"
+            tabindex="0"
+            @keydown.enter="openLightbox"
+            @keydown.space.prevent="openLightbox"
+        >
+            <?php foreach ($images as $i => $img): ?>
+                <?php $caption = ($img->getData('video_title') ?? $img->getData('label')); ?>
+                <div
+                    id="<?= $escaper->escapeHtmlAttr('gallery-slide-' . $i) ?>"
+                    x-show="showInitImages"
+                    class="relative shrink-0 w-full snap-start"
+                >
+                    <button
+                        type="button"
+                        class="group stack w-full p-0 -outline-offset-2"
+                        data-media-type="<?= $escaper->escapeHtmlAttr($img->getData('media_type')) ?>"
+                        data-img-src="<?= $escaper->escapeUrl($img->getData('large_image_url')) ?>"
+                        data-video-src="<?= $escaper->escapeUrl($img->getData('video_url')) ?>"
+                        data-caption="<?= $escaper->escapeHtmlAttr($caption) ?>"
+                        @click="openLightbox"
+                        tabindex="-1"
+                    >
+                        <img
+                            src="<?= $escaper->escapeUrl($img->getData('medium_image_url')) ?>"
+                            alt="<?= $escaper->escapeHtmlAttr($showCaption && $caption ? '' : $caption ?? $productName) ?>"
+                            width="<?= $escaper->escapeHtmlAttr($mediumWidth) ?>"
+                            height="<?= $escaper->escapeHtmlAttr($mediumHeight) ?>"
+                            loading="<?= $escaper->escapeHtmlAttr($i === 0 ? 'eager' : 'lazy') ?>"
+                            <?php if ($i === 0): ?>
+                                fetchpriority="high"
+                                itemprop="image"
+                            <?php endif; ?>
+                            class="aspect-(--gallery-ratio) object-scale-down"
+                        >
+                        <?php if ($img->getData('video_url')): ?>
+                            <span class="flex justify-center items-center pointer-events-none transition-transform group-hover:scale-125 text-white">
+                                <?= $lucideIcons->playHtml('rounded-lg p-2 bg-black/30', 68, 68, ['aria-hidden' => 'true']); ?>
+                            </span>
+                        <?php endif; ?>
+                        <?php if ($showCaption && $caption): ?>
+                            <span class="<?= $escaper->escapeHtmlAttr($captionCssClasses) ?>">
+                                <?= $escaper->escapeHtml($caption) ?>
+                            </span>
+                        <?php endif; ?>
+                    </button>
+                </div>
+            <?php endforeach; ?>
+
+            <template x-for="(image, i) in newImages" :key="i">
+                <div
+                    :id="setDynSlideId"
+                    class="relative shrink-0 w-full snap-start"
+                >
+                    <button
+                        type="button"
+                        class="group stack w-full p-0 -outline-offset-2"
+                        :data-img-src="image.full"
+                        :data-video-src="image.videoUrl"
+                        :data-media-type="image.type"
+                        :data-caption="imgCaption"
+                        @click="openLightbox"
+                    >
+                        <img
+                            :src="image.img"
+                            :alt="imgCaption"
+                            width="<?= $escaper->escapeHtmlAttr($mediumWidth) ?>"
+                            height="<?= $escaper->escapeHtmlAttr($mediumHeight) ?>"
+                            class="aspect-(--gallery-ratio) object-scale-down"
+                        >
+                        <span
+                            class="flex justify-center items-center pointer-events-none transition-transform group-hover:scale-125 text-white"
+                            x-show="isVideoSlide"
+                            x-cloak
+                        >
+                            <?= $lucideIcons->playHtml('rounded-lg p-2 bg-black/30', 68, 68, ['aria-hidden' => 'true']); ?>
+                        </span>
+                        <?php if ($showCaption): ?>
+                            <span
+                                class="<?= $escaper->escapeHtmlAttr($captionCssClasses) ?>"
+                                x-text="imgCaption"
+                                x-show="imgCaption"
+                            ></span>
+                        <?php endif; ?>
+                    </button>
+                </div>
+            </template>
+        </div>
+
+    </div>
+
+    <?php if ($pagerStyle === 'dots' || $pagerStyle === 'thumbs'): ?>
+        <div
+            class="<?= $escaper->escapeHtmlAttr($pagerWrapperCssClasses) ?>"
+            x-show="showPager"
+            <?php if ($imageCount <= 1 && $pagerDir === 'vertical' && !$isConfigurable): ?>style="display:none"<?php endif; ?>
+        >
+            <div data-pager class="<?= $escaper->escapeHtmlAttr($pagerCssClasses) ?>">
+                <?php foreach ($images as $i => $img): ?>
+                    <a
+                        href="<?= $escaper->escapeHtmlAttr('#gallery-slide-' . $i) ?>"
+                        class="<?= $escaper->escapeHtmlAttr($pagerMarkerCssClasses) ?>"
+                        aria-label="<?= $escaper->escapeHtmlAttr(__('Slide %1', $i + 1)) ?>"
+                        <?php if ($i === 0): ?>
+                            aria-current="true"
+                        <?php endif; ?>
+                        <?php if ($i >= $maxThumbs && $pagerStyle !== 'dots'): ?>
+                            data-overflow
+                        <?php endif; ?>
+                        x-show="showInitImages"
+                    >
+                        <?php if ($pagerStyle !== 'dots'): ?>
+                            <img
+                                src="<?= $escaper->escapeUrl($img->getData('small_image_url')) ?>"
+                                alt=""
+                                width="<?= $escaper->escapeHtmlAttr($smallWidth) ?>"
+                                height="<?= $escaper->escapeHtmlAttr($smallHeight) ?>"
+                                loading="lazy"
+                                class="hidden lg:block lg:rounded-sm lg:aspect-(--thumb-ratio) object-cover"
+                            >
+                            <?php if ($img->getData('video_url')): ?>
+                                <span class="hidden lg:flex justify-center items-center bg-black/30 text-white rounded-sm">
+                                    <?= $lucideIcons->playHtml('', 28, 28, ['aria-hidden' => 'true']); ?>
+                                </span>
+                            <?php endif; ?>
+                        <?php endif; ?>
+                    </a>
+                <?php endforeach; ?>
+
+                <template x-for="(image, i) in newImages" :key="i">
+                    <button
+                        type="button"
+                        class="<?= $escaper->escapeHtmlAttr($pagerMarkerCssClasses) ?>"
+                        :data-target-id="setDynSlideId"
+                        :data-overflow="showDynMarker"
+                    >
+                        <?php if ($pagerStyle !== 'dots'): ?>
+                            <img
+                                :src="image.img"
+                                alt=""
+                                width="<?= $escaper->escapeHtmlAttr($smallWidth) ?>"
+                                height="<?= $escaper->escapeHtmlAttr($smallHeight) ?>"
+                                class="hidden lg:block lg:rounded-sm lg:aspect-(--thumb-ratio) object-cover"
+                            >
+                            <span
+                                class="hidden lg:flex justify-center items-center bg-black/30 text-white rounded-sm"
+                                x-show="isVideoSlide"
+                            >
+                                <?= $lucideIcons->playHtml('', 28, 28, ['aria-hidden' => 'true']); ?>
+                            </span>
+                        <?php endif; ?>
+                    </button>
+                </template>
+            </div>
+            <?php if ($pagerStyle !== 'dots'): ?>
+                <button
+                    type="button"
+                    x-show="hasOverflow"
+                    x-cloak
+                    @click="openOverflowLightbox"
+                    class="<?= $escaper->escapeHtmlAttr($pagerMarkerCssClasses) ?> hidden lg:stack shrink-0"
+                    style="<?= $escaper->escapeHtmlAttr("width: {$smallWidth}px;height:{$smallHeight}px") ?>"
+                    tabindex="-1"
+                >
+                    <img
+                        :src="overflowSrc"
+                        x-show="overflowSrc"
+                        alt=""
+                        width="<?= $escaper->escapeHtmlAttr($smallWidth) ?>"
+                        height="<?= $escaper->escapeHtmlAttr($smallHeight) ?>"
+                        class="aspect-(--thumb-ratio) object-cover rounded-sm"
+                    >
+                    <span class="flex items-center justify-center bg-black/30 text-white font-semibold lg:rounded-sm">
+                        <span>+</span>
+                        <span x-text="maxImageCount"><?= $escaper->escapeHtml(max(0, $imageCount - $maxThumbs)) ?></span>
+                    </span>
+                </button>
+            <?php endif; ?>
+        </div>
+    <?php endif; ?>
+
+    <span id="gallery-slider-end" class="absolute" tabindex="-1"></span>
+
+    <dialog
+        class="size-full open:stack place-items-center bg-transparent p-0 shadow-none rounded-none backdrop:backdrop-blur-xs"
+        closeby="any"
+        x-show="lightbox.open"
+        x-transition
+        x-htmldialog="closeLightbox"
+        @click.self="closeLightbox"
+        @keydown.left="navigateLightboxPrev"
+        @keydown.right="navigateLightboxNext"
+    >
+        <button
+            type="button"
+            class="absolute right-2 top-2 <?= $escaper->escapeHtmlAttr($btnCssClasses) ?>"
+            @click="closeLightbox"
+        >
+            <?= $lucideIcons->xHtml('', $btnIconSize, $btnIconSize, ['aria-hidden' => 'true']); ?>
+        </button>
+        <img
+            x-show="lightboxIsNotVideo"
+            :src="lightbox.src"
+            :alt="lightbox.caption"
+            class="rounded max-h-[90svh] object-contain"
+        >
+        <iframe
+            x-show="lightbox.isVideo"
+            :src="lightbox.src"
+            :title="lightbox.caption"
+            class="rounded max-h-[90svh] aspect-video"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            referrerpolicy="strict-origin-when-cross-origin"
+            allowfullscreen
+        ></iframe>
+        <?php if ($navStyle !== 'none'): ?>
+            <div class="z-10 absolute flex gap-2 bottom-2 end-2
+                xl:bottom-auto xl:top-1/2 xl:-translate-y-1/2 xl:inset-x-0 xl:justify-between pointer-events-none">
+                <button
+                    type="button"
+                    class="<?= $escaper->escapeHtmlAttr($btnCssClasses) ?>"
+                    aria-label="<?= $escaper->escapeHtmlAttr(__('Previous image')) ?>"
+                    @click="navigateLightboxPrev"
+                    :disabled="lightboxAtStart"
+                    x-show="showArrows"
+                >
+                    <?= $lucideIcons->chevronLeftHtml('rtl:rotate-180', $btnIconSize, $btnIconSize, ['aria-hidden' => 'true']); ?>
+                </button>
+                <button
+                    type="button"
+                    class="<?= $escaper->escapeHtmlAttr($btnCssClasses) ?>"
+                    aria-label="<?= $escaper->escapeHtmlAttr(__('Next image')) ?>"
+                    @click="navigateLightboxNext"
+                    :disabled="lightboxAtEnd"
+                    x-show="showArrows"
+                >
+                    <?= $lucideIcons->chevronRightHtml('rtl:rotate-180', $btnIconSize, $btnIconSize, ['aria-hidden' => 'true']); ?>
+                </button>
+            </div>
+        <?php endif; ?>
+    </dialog>
+</section>
+
+<script>
+    function initGallery() {
+        return {
+            initImages: <?= /* @noEscape */ $block->getGalleryImagesJson() ?>,
+            newImages: [],
+            sliderItems: {},
+            useLoop: <?= $escaper->escapeJs($useLoop ? 'true' : 'false') ?>,
+            isConfigurable: <?= $escaper->escapeJs($isConfigurable ? 'true' : 'false') ?>,
+            replaceOnReceive: <?= $escaper->escapeJs($replaceOnReceive ? 'true' : 'false') ?>,
+            showInitImages: true,
+            maxDisplay: <?= $escaper->escapeJs($maxThumbs) ?>,
+            maxImageCount: 0,
+            initOverflowSrc: '',
+            overflowSrc: '',
+            lightbox: { open: false, src: '', caption: '', isVideo: false, index: -1 },
+            videoLoop: <?= $escaper->escapeJs($videoLoop ? 'true' : 'false') ?>,
+            init() {
+                this.maxImageCount = this.initImages.length - this.maxDisplay;
+                this.initOverflowSrc = this.initImages[this.maxDisplay]?.img || '';
+                this.overflowSrc = this.initOverflowSrc;
+                this.$watch('newImages', () => this.updateActiveItem());
+            },
+            updateGallery(images = []) {
+                const existing = new Set(this.initImages.map(i => i.img));
+                this.newImages = images.filter(img => !existing.has(img.img));
+                this.sliderItems = {};
+                if (this.replaceOnReceive) {
+                    this.showInitImages = !this.newImages.length;
+                }
+                const visibleInitCount = this.showInitImages ? this.initImages.length : 0;
+                this.maxImageCount = visibleInitCount + this.newImages.length - this.maxDisplay;
+                const overflowIdx = this.maxDisplay - visibleInitCount;
+                this.overflowSrc = (overflowIdx >= 0 && this.newImages[overflowIdx]?.img) || this.initOverflowSrc;
+            },
+            updateActiveItem() {
+                const track = this.$root.querySelector('[data-track]');
+                if (!track) return;
+                const slide = this.newImages.length > 0
+                    ? document.getElementById('gallery-slide-dyn-0')
+                    : track.firstElementChild;
+                if (!slide) return;
+                const trackRect = track.getBoundingClientRect();
+                const slideRect = slide.getBoundingClientRect();
+                track.scrollTo({
+                    left: slideRect.left - trackRect.left + track.scrollLeft,
+                    top: slideRect.top - trackRect.top + track.scrollTop,
+                    behavior: 'instant',
+                });
+            },
+            setDynSlideId() {
+                return 'gallery-slide-dyn-' + this.i;
+            },
+            showDynMarker() {
+                const index = (this.i ?? 0) + 1;
+                const visibleInitCount = this.showInitImages ? this.initImages.length : 0;
+                return (index + visibleInitCount) > this.maxDisplay;
+            },
+            imgCaption() {
+                return this.image?.caption || '';
+            },
+            isVideoSlide() {
+                return this.image?.type !== 'image';
+            },
+            visibleImageCount() {
+                return (this.showInitImages ? this.initImages.length : 0) + this.newImages.length;
+            },
+            showPager() {
+                return this.visibleImageCount() > 1 || this.isConfigurable;
+            },
+            showArrows() {
+                return this.visibleImageCount() > 1;
+            },
+            hasOverflow() {
+                return this.maxImageCount > 0;
+            },
+            getLightboxItems() {
+                if (!this.sliderItems.lightbox) {
+                    const all = Array.from(this.$root.querySelectorAll('[data-track] [data-img-src]'));
+                    this.sliderItems.lightbox = this.showInitImages ? all : all.slice(this.initImages.length);
+                }
+                return this.sliderItems.lightbox;
+            },
+            setLightboxFrom({ imgSrc = '', videoSrc = '', mediaType = 'image', caption = '' }) {
+                this.lightbox.isVideo = mediaType !== 'image';
+                this.lightbox.src = this.lightbox.isVideo ? this.toVideoEmbedUrl(videoSrc) : imgSrc;
+                this.lightbox.caption = caption;
+            },
+            toVideoEmbedUrl(src) {
+                const url = new URL(src);
+                const params = new URLSearchParams({
+                    autoplay: 1,
+                    controls: 1,
+                    loop: this.videoLoop ? 1 : 0,
+                });
+
+                if (url.hostname.includes('youtube.com') || url.hostname.includes('youtu.be')) {
+                    const videoId = url.searchParams.get('v') || url.pathname.split('/').pop();
+                    if (this.videoLoop) {
+                        params.set('playlist', videoId);
+                    }
+                    return `https://www.youtube-nocookie.com/embed/${videoId}?${params}`;
+                }
+                if (url.hostname.includes('vimeo.com')) {
+                    const videoId = url.pathname.split('/').pop();
+                    return `https://player.vimeo.com/video/${videoId}?${params}`;
+                }
+                return src;
+            },
+            lightboxIsNotVideo() {
+                return !this.lightbox.isVideo;
+            },
+            showLightbox(idx) {
+                const items = this.getLightboxItems();
+                const target = items[idx];
+                if (!target) return;
+                this.lightbox.index = idx;
+                this.setLightboxFrom(target.dataset);
+                this.lightbox.open = true;
+            },
+            openLightbox() {
+                const items = this.getLightboxItems();
+                const idx = items.findIndex(el => !el.closest('[inert]'));
+                if (idx === -1) return;
+                this.showLightbox(idx);
+            },
+            openOverflowLightbox() {
+                this.showLightbox(this.maxDisplay);
+            },
+            navigateLightbox(dir) {
+                const items = this.getLightboxItems();
+                if (!items.length) return;
+                const next = this.lightbox.index + dir;
+                if (!this.useLoop && (next < 0 || next >= items.length)) return;
+                this.showLightbox((next + items.length) % items.length);
+            },
+            navigateLightboxPrev() {
+                this.navigateLightbox(-1);
+            },
+            navigateLightboxNext() {
+                this.navigateLightbox(1);
+            },
+            lightboxAtStart() {
+                return !this.useLoop && this.lightbox.index === 0;
+            },
+            lightboxAtEnd() {
+                return !this.useLoop && this.lightbox.index === this.getLightboxItems().length - 1;
+            },
+            closeLightbox() {
+                this.lightbox = { open: false, src: '', caption: '', isVideo: false, index: -1 };
+            },
+            eventListeners: {
+                ['@update-gallery.window'](e) { this.updateGallery(e.detail); },
+                ['@reset-gallery.window']() { this.updateGallery(); }
+            },
+        }
+    }
+
+    window.addEventListener('alpine:init', () => Alpine.data('initGallery', initGallery), { once: true })
+</script>
+<?php $hyvaCsp->registerInlineScript() ?>

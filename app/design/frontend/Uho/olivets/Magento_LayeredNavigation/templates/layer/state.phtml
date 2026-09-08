@@ -1,0 +1,76 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes. All rights reserved.
+ * See COPYING.txt for license details.
+ *
+ * олівець "Playful Pastel" override: active-filter chip panel restyled from
+ * neutral grays to primary-tint tokens, rounded card corners.
+ */
+
+declare(strict_types=1);
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\LucideIcons;
+use Magento\Framework\Escaper;
+use Magento\LayeredNavigation\Block\Navigation\State;
+
+/** @var State $block */
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+
+/** @var LucideIcons $lucideIcons */
+$lucideIcons = $viewModels->require(LucideIcons::class);
+$filters = $block->getActiveFilters();
+
+if (empty($filters)) {
+    return;
+}
+?>
+
+<details class="group filter-current card rounded-2xl border-transparent shadow-card p-0 my-4">
+    <summary class="filter-options-title list-none flex justify-between items-center cursor-pointer py-4 px-5">
+        <h3 class="inline-block text-md md:text-lg font-semibold text-ink">
+            <?= $escaper->escapeHtml(__('Active filtering')) ?>
+        </h3>
+        <span class="p-1 rounded-lg border border-primary-tint">
+            <?= $lucideIcons->chevronDownHtml(
+                'transition-transform group-open:rotate-180',
+                24,
+                24,
+                ['aria-hidden' => 'true']
+            ); ?>
+        </span>
+    </summary>
+    <div class="py-4 px-5 border-t border-primary-tint">
+        <ul role="list" class="items">
+            <?php foreach ($filters as $filter): ?>
+                <?php
+                    $filterName = $filter->getName();
+                    $filterLabel = $block->stripTags($filter->getLabel());
+                ?>
+                <li class="item flex justify-between items-center gap-2 mb-3 pb-3 border-b border-primary-tint last:border-transparent last:mb-0">
+                    <span>
+                        <span class="filter-label block text-ink"><?= $escaper->escapeHtml(__($filterName)) ?></span>
+                        <span class="filter-value text-sm block text-ink-muted">
+                            <?= $escaper->escapeHtml($filterLabel) ?>
+                        </span>
+                    </span>
+                    <a class="btn rounded-full p-2" href="<?= $escaper->escapeUrl($filter->getRemoveUrl()) ?>">
+                        <span class="sr-only"><?= $escaper->escapeHtml(__('Remove active %1 filter: %2', $filterName, $filterLabel)) ?></span>
+                        <?= $lucideIcons->trashHtml('', 20, 20, ['aria-hidden' => 'true']); ?>
+                    </a>
+                </li>
+            <?php endforeach; ?>
+        </ul>
+
+        <?php if ($block->getLayer()->getState()->getFilters()): ?>
+            <div class="block-actions filter-actions">
+                <a
+                    href="<?= $escaper->escapeUrl($block->getClearUrl()) ?>"
+                    class="btn btn-secondary rounded-full btn-size-sm w-full"
+                ><?= $escaper->escapeHtml(__('Clear All')) ?></a>
+            </div>
+        <?php endif; ?>
+    </div>
+</details>

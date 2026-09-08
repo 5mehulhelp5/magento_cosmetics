@@ -1,0 +1,41 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes. All rights reserved.
+ * See COPYING.txt for license details.
+ *
+ * олівець "Playful Pastel" override: dark-ink footer background with the
+ * cream wordmark, per the design spec's Footer section.
+ */
+
+declare(strict_types=1);
+
+use Magento\Framework\View\Element\Template;
+use Magento\Framework\Escaper;
+
+/** @var Template $block */
+/** @var Escaper $escaper */
+
+$wordmarkVariant = 'cream';
+?>
+<div class="bg-ink border-t border-ink pb-16">
+    <div class="container py-8">
+        <div class="flex flex-wrap gap-y-16">
+            <?php foreach ($block->getChildNames() as $childName): ?>
+                <?= $childName !== 'footer-copyright' ? $block->getBlockHtml($childName) : '' ?>
+            <?php endforeach; ?>
+        </div>
+    </div>
+    <div class="bg-ink border-t border-bg/10">
+        <div class="container py-6 flex items-center sm:flex-row flex-col gap-2">
+            <a
+                href="<?= $escaper->escapeUrl($block->getUrl('')) ?>"
+                class="flex items-center"
+                aria-label="<?= $escaper->escapeHtmlAttr(__('Go to Home page')) ?>"
+            >
+                <?php include __DIR__ . '/header/wordmark.phtml'; ?>
+            </a>
+            <p><?= $block->getChildHtml('copyright') ?></p>
+        </div>
+    </div>
+</div>

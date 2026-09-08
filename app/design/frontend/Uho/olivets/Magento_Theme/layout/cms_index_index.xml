@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * олівець "Playful Pastel" homepage layout override.
+ *
+ * Replaces the Hyvä default demo-content hero/sliders with:
+ * hero (CMS-block-driven) -> category tiles (dynamic, from the same
+ * Navigation view model as the header nav) -> promo (CMS-block-driven).
+ * See docs/superpowers/specs/2026-09-08-olivets-theme-visual-redesign-design.md
+ * (Page scope, item 4).
+ */
+-->
+<page
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd"
+>
+    <body>
+        <referenceContainer name="content">
+            <referenceBlock name="hero" remove="true"/>
+            <referenceBlock name="slider-1" remove="true"/>
+            <referenceBlock name="slider-2" remove="true"/>
+
+            <block name="olivets-hero" template="Magento_Theme::home/hero.phtml">
+                <block class="Magento\Cms\Block\Block" name="olivets-hero-cms">
+                    <arguments>
+                        <argument name="block_id" xsi:type="string">olivets_home_hero</argument>
+                    </arguments>
+                </block>
+            </block>
+
+            <block name="olivets-category-tiles" template="Magento_Theme::home/category-tiles.phtml"/>
+
+            <block name="olivets-promo" template="Magento_Theme::home/promo.phtml">
+                <block class="Magento\Cms\Block\Block" name="olivets-promo-cms">
+                    <arguments>
+                        <argument name="block_id" xsi:type="string">olivets_home_promo</argument>
+                    </arguments>
+                </block>
+            </block>
+        </referenceContainer>
+    </body>
+</page>

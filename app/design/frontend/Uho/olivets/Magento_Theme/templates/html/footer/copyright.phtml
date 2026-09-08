@@ -1,0 +1,23 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes. All rights reserved.
+ * See COPYING.txt for license details.
+ *
+ * олівець "Playful Pastel" override: dark-ink footer background, so this
+ * drops the "Hyvä Theme" attribution link (that belongs in footer.phtml's
+ * wordmark slot now) and renders the admin-configured store copyright text
+ * in cream-muted color instead of the Hyvä default's hardcoded copy.
+ */
+
+declare(strict_types=1);
+
+use Magento\Theme\Block\Html\Footer;
+use Magento\Framework\Escaper;
+
+/** @var Footer $block */
+/** @var Escaper $escaper */
+?>
+<small class="text-sm text-bg/70 sm:ml-6 sm:mt-0 mt-4">
+    <?= $escaper->escapeHtml($block->getCopyright()) ?>
+</small>

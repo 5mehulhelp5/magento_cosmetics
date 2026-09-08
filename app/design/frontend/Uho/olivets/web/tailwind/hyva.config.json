@@ -10,8 +10,8 @@
     "tokens": {
         "values": {
             "color": {
-                "primary": "oklch(46% 0.2 265)",
-                "secondary": "oklch(53% 0.15 150)",
+                "primary": "#C93A70",
+                "secondary": "#3D6FBF",
                 "on-primary": "#fff",
                 "on-secondary": "#fff"
             }

@@ -1,0 +1,91 @@
+<?php
+/**
+ * Hyvä Themes - https://hyva.io
+ * Copyright © Hyvä Themes. All rights reserved.
+ * See COPYING.txt for license details.
+ *
+ * олівець "Playful Pastel" override: link columns restyled for the dark-ink
+ * footer background (cream/cream-muted text, rose hover), plus a
+ * bulk/business-orders link ("Опт для бізнесу") signalling the storefront
+ * also serves business/bulk-office buyers, not just school/consumer.
+ */
+
+declare(strict_types=1);
+
+use Hyva\Theme\Model\ViewModelRegistry;
+use Hyva\Theme\ViewModel\Customer;
+use Hyva\Theme\ViewModel\StoreConfig;
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+
+/** @var Template $block */
+/** @var Escaper $escaper */
+/** @var ViewModelRegistry $viewModels */
+
+/** @var Customer $customer */
+$customer = $viewModels->require(Customer::class);
+/** @var StoreConfig $storeConfig */
+$storeConfig = $viewModels->require(StoreConfig::class);
+?>
+<div class="md:w-1/2 w-full flex flex-wrap pr-4">
+    <div class="w-full grid grid-cols-1 sm:grid-cols-2 gap-8 xl:col-span-2">
+        <nav aria-label="<?= $escaper->escapeHtmlAttr(__('Company Menu')) ?>">
+            <h2 class="text-md leading-5 font-semibold tracking-wider uppercase text-bg">
+                <?= $escaper->escapeHtml(__('Компанія')) ?>
+            </h2>
+            <ul class="mt-4">
+                <li>
+                    <a href="<?= $escaper->escapeUrl($block->getUrl('catalog/category/view/id/63')) ?>"
+                       class="text-base leading-6 text-bg/80 hover:text-primary-tint font-semibold">
+                        <?= $escaper->escapeHtml(__('Опт для бізнесу')) ?>
+                    </a>
+                </li>
+                <li class="mt-4">
+                    <a href="<?= $escaper->escapeUrl($block->getUrl('customer/account')) ?>"
+                       class="text-base leading-6 text-bg/80 hover:text-primary-tint">
+                        <?= $escaper->escapeHtml(__('My Account')) ?>
+                    </a>
+                </li>
+                <?php if (!$customer->customerLoggedIn()): ?>
+                    <li class="mt-4">
+                        <a href="<?= $escaper->escapeUrl($block->getUrl('sales/guest/form')) ?>"
+                           class="text-base leading-6 text-bg/80 hover:text-primary-tint">
+                            <?= $escaper->escapeHtml(__('Orders and Returns')) ?>
+                        </a>
+                    </li>
+                <?php endif; ?>
+                <?php if ($storeConfig->getStoreConfig('catalog/seo/search_terms')): ?>
+                    <li class="mt-4">
+                        <a href="<?= $escaper->escapeUrl($block->getUrl('search/term/popular')) ?>"
+                           class="text-base leading-6 text-bg/80 hover:text-primary-tint">
+                            <?= $escaper->escapeHtml(__('Search Terms')) ?>
+                        </a>
+                    </li>
+                <?php endif; ?>
+                <li class="mt-4">
+                    <a href="<?= $escaper->escapeUrl($block->getUrl('contact')) ?>"
+                       class="text-base leading-6 text-bg/80 hover:text-primary-tint">
+                        <?= $escaper->escapeHtml(__('Contact')) ?>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        <nav aria-label="<?= $escaper->escapeHtmlAttr(__('Legal Menu')) ?>">
+            <h2 class="text-md leading-5 font-semibold tracking-wider uppercase text-bg">
+                <?= $escaper->escapeHtml(__('Правова інформація')) ?>
+            </h2>
+            <ul class="mt-4">
+                <li class="mt-4">
+                    <a href="#" class="text-base leading-6 text-bg/80 hover:text-primary-tint">
+                        <?= $escaper->escapeHtml(__('Privacy')) ?>
+                    </a>
+                </li>
+                <li class="mt-4">
+                    <a href="#" class="text-base leading-6 text-bg/80 hover:text-primary-tint">
+                        <?= $escaper->escapeHtml(__('Terms and Conditions')) ?>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>
