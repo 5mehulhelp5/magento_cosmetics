@@ -12,6 +12,7 @@ use Uho\NovaposhtaCheckout\Model\Address\PostcodeStrategy\SentinelStrategy;
 use Uho\NovaposhtaCheckout\Model\Address\PostcodeStrategy\StrategyPool;
 use Uho\NovaposhtaCheckout\Model\Config\Source\PostcodeStrategy as PostcodeStrategySource;
 
+use function sprintf;
 class PostcodeStrategyTest extends TestCase
 {
     private const string UA_POSTCODE_PATTERN = '/^[0-9]{5}$/';

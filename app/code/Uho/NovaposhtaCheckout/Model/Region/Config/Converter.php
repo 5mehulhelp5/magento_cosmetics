@@ -9,6 +9,8 @@ use DOMElement;
 use DOMNode;
 use Magento\Framework\Config\ConverterInterface;
 
+use function mb_strtolower;
+use function trim;
 class Converter implements ConverterInterface
 {
     public const string KEY_AREAS = 'areas';

@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <uho_courier_order_api>
+            <reconciliation>
+                <adjustment_ceiling_kopecks>100</adjustment_ceiling_kopecks>
+                <max_search_nodes>5000</max_search_nodes>
+            </reconciliation>
+        </uho_courier_order_api>
+    </default>
+</config>

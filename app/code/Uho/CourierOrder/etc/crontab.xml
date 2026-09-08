@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Cron:etc/crontab.xsd">
+    <group id="default">
+        <job name="uho_courier_order_reclaim_stuck_requests"
+             instance="Uho\CourierOrder\Model\Cron\ReclaimStuckRequests"
+             method="execute">
+            <schedule>*/5 * * * *</schedule>
+        </job>
+        <job name="uho_courier_order_process_pending_requests"
+             instance="Uho\CourierOrder\Model\Cron\ProcessPendingRequests"
+             method="execute">
+            <schedule>*/2 * * * *</schedule>
+        </job>
+    </group>
+</config>

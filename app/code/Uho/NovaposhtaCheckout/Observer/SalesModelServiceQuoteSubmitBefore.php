@@ -10,6 +10,7 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Quote\Model\Quote;
 use Uho\NovaposhtaShipping\Model\Carrier\NovaposhtaManual;
 
+use function explode;
 /**
  * Fail-closed guard: an order must never be placed with the Nova Poshta carrier selected but no
  * composed warehouse (docs §6 B3). The two `before` plugins in Plugin\Quote already compose the

@@ -9,6 +9,10 @@ use Magento\Framework\Exception\NoSuchEntityException;
 use Perspective\NovaposhtaCatalog\Api\CityRepositoryInterface;
 use Perspective\NovaposhtaCatalog\Api\Data\WarehouseInterface;
 use Perspective\NovaposhtaCatalog\Model\City\City;
+
+use function preg_match;
+use function strcasecmp;
+use function trim;
 use Perspective\NovaposhtaCatalog\Model\ResourceModel\Warehouse\Warehouse\CollectionFactory
     as WarehouseCollectionFactory;
 use Uho\NovaposhtaCheckout\Api\AddressComposerInterface;

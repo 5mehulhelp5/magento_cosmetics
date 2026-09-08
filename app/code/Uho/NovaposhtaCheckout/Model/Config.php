@@ -8,6 +8,10 @@ use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Store\Model\ScopeInterface;
 use Uho\NovaposhtaCheckout\Model\Config\Source\PostcodeStrategy;
 
+use function array_filter;
+use function array_map;
+use function array_values;
+use function explode;
 class Config
 {
     private const string XML_PATH_POSTCODE_STRATEGY = 'uho_novaposhta/address/postcode_strategy';

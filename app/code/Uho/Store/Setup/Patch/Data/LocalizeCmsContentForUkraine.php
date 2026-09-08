@@ -12,6 +12,8 @@ use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\Setup\Patch\DataPatchInterface;
 use Magento\Store\Model\StoreManagerInterface;
 
+use function file_get_contents;
+use function sprintf;
 class LocalizeCmsContentForUkraine implements DataPatchInterface
 {
     private const string IDENTIFIER_PRIVACY_POLICY = 'privacy-policy-cookie-restriction-mode';

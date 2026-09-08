@@ -13,6 +13,7 @@ use Throwable;
 use Uho\NovaposhtaCheckout\Api\Data\WarehouseOptionInterface;
 use Uho\NovaposhtaCheckout\Api\WarehouseLocatorInterface;
 
+use function array_map;
 /**
  * GET uho_novaposhta/ajax/warehouselist?cityRef=...&q=...&limit=...
  *

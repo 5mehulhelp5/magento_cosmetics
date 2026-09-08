@@ -12,6 +12,7 @@ use Magento\Store\Model\StoreManagerInterface;
 use Uho\NovaposhtaCheckout\Api\AddressComposerInterface;
 use Uho\NovaposhtaCheckout\Api\Data\ComposedAddressInterface;
 
+use function trim;
 /**
  * Shared read+compose+apply logic for the two service-contract plugins that intercept an
  * incoming shipping AddressInterface before core persists or validates it (docs §6 B3).

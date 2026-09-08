@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:Acl/etc/acl.xsd">
+    <acl>
+        <resources>
+            <resource id="Magento_Backend::admin">
+                <resource id="Uho_CourierOrderApi::courier" title="Courier Order API" sortOrder="200">
+                    <resource id="Uho_CourierOrderApi::create" title="Submit Courier Orders" sortOrder="10"/>
+                    <resource id="Uho_CourierOrderProcessor::grid" title="View Courier Order Requests" sortOrder="20">
+                        <resource id="Uho_CourierOrderProcessor::requeue" title="Requeue Courier Order Requests" sortOrder="10"/>
+                    </resource>
+                </resource>
+            </resource>
+        </resources>
+    </acl>
+</config>

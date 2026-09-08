@@ -10,6 +10,9 @@ use Magento\Framework\Serialize\SerializerInterface;
 use Uho\NovaposhtaCheckout\Model\Region\Config\Converter;
 use Uho\NovaposhtaCheckout\Model\Region\Config\Reader;
 
+use function is_array;
+use function is_string;
+use function mb_strtolower;
 /**
  * Nova Poshta oblast -> Magento region ISO code map, loaded from etc/np_region_map.xml.
  */
